@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "nexus-router>=0.8.0",
+    # "nexus-router>=0.8.0",  # Uncomment when published; installed locally in monorepo
     "httpx>=0.25.0",
 ]
 
