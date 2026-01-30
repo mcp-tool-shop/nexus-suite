@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.status.v0.1.json",
+  "title": "nexus-control.status",
+  "description": "Get status of an execution request",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The decision/request ID to query"
+    },
+    "include_events": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to include full event timeline in response"
+    }
+  },
+  "required": ["request_id"],
+  "examples": [
+    {
+      "request_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "request_id": "550e8400-e29b-41d4-a716-446655440000",
+      "include_events": true
+    }
+  ],
+  "response": {
+    "type": "object",
+    "properties": {
+      "success": {"type": "boolean"},
+      "decision_id": {"type": "string"},
+      "state": {
+        "type": "string",
+        "enum": ["draft", "pending_approval", "approved", "executing", "completed", "failed"]
+      },
+      "goal": {"type": "string"},
+      "plan": {"type": ["string", "null"]},
+      "requested_mode": {"type": "string", "enum": ["dry_run", "apply"]},
+      "labels": {"type": "array", "items": {"type": "string"}},
+      "policy": {
+        "type": ["object", "null"],
+        "properties": {
+          "min_approvals": {"type": "integer"},
+          "allowed_modes": {"type": "array"},
+          "require_adapter_capabilities": {"type": "array"},
+          "max_steps": {"type": ["integer", "null"]},
+          "labels": {"type": "array"}
+        }
+      },
+      "active_approvals": {"type": "integer"},
+      "total_approvals": {"type": "integer"},
+      "is_approved": {"type": "boolean"},
+      "executions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "adapter_id": {"type": "string"},
+            "dry_run": {"type": "boolean"},
+            "requested_at": {"type": "string", "format": "date-time"},
+            "started_at": {"type": ["string", "null"], "format": "date-time"},
+            "completed_at": {"type": ["string", "null"], "format": "date-time"},
+            "run_id": {"type": ["string", "null"]},
+            "steps_executed": {"type": ["integer", "null"]},
+            "error_code": {"type": ["string", "null"]},
+            "error_message": {"type": ["string", "null"]}
+          }
+        }
+      },
+      "event_count": {"type": "integer"},
+      "events": {
+        "type": "array",
+        "description": "Only included if include_events=true"
+      }
+    }
+  }
+}

@@ -1,0 +1,218 @@
+name: Publish nexus-attest to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    name: Build Distribution Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install build twine
+
+      - name: Build distribution packages
+        run: python -m build
+
+      - name: Verify distribution integrity
+        run: |
+          twine check dist/*
+          echo "✓ Distribution packages validated"
+
+      - name: Display built artifacts
+        run: |
+          echo "Built artifacts:"
+          ls -lh dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          retention-days: 1
+          if-no-files-found: error
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/nexus-attest/
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Verify artifacts before publishing
+        run: |
+          echo "Artifacts to publish:"
+          ls -lh dist/
+          file dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true
+
+      - name: Create release summary
+        run: |
+          echo "## Publication Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **nexus-attest** successfully published to PyPI" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Package: nexus-attest" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 PyPI: https://pypi.org/project/nexus-attest/" >> $GITHUB_STEP_SUMMARY
+          echo "📚 Documentation: https://github.com/mcp-tool-shop/nexus-attest" >> $GITHUB_STEP_SUMMARY
+
+  publish-release-notes:
+    name: Update Release on GitHub
+    needs: publish-to-pypi
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate release notes comment
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          cat > /tmp/release_notes.md << 'EOF'
+          ## Release: nexus-attest ${{ env.RELEASE_TAG }}
+
+          ### Package Information
+          - **PyPI Package**: [nexus-attest](https://pypi.org/project/nexus-attest/${{ env.RELEASE_TAG }}/)
+          - **Installation**: `pip install nexus-attest==${{ env.RELEASE_TAG }}`
+          - **Repository**: [github.com/mcp-tool-shop/nexus-attest](https://github.com/mcp-tool-shop/nexus-attest)
+
+          ### Features
+          - **Orchestration**: Control plane for nexus-router executions
+          - **Governance**: Policy-based approval workflows with N-of-M support
+          - **Audit**: Cryptographically signed decision and execution bundles
+          - **MCP Tools**: 11 integrated Model Context Protocol tools
+          - **Templates**: Named, immutable policy templates for reusability
+
+          ### Installation & Quick Start
+          ```bash
+          pip install nexus-attest
+          ```
+
+          See [QUICKSTART.md](https://github.com/mcp-tool-shop/nexus-attest/blob/main/QUICKSTART.md) for usage examples.
+
+          ### Documentation
+          - [Architecture Guide](https://github.com/mcp-tool-shop/nexus-attest/blob/main/ARCHITECTURE.md)
+          - [Quickstart](https://github.com/mcp-tool-shop/nexus-attest/blob/main/QUICKSTART.md)
+          - [README](https://github.com/mcp-tool-shop/nexus-attest/blob/main/README.md)
+          EOF
+          cat /tmp/release_notes.md
+
+  test-installation:
+    name: Verify Package Installation
+    needs: publish-to-pypi
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Wait for PyPI to index package
+        run: sleep 10
+
+      - name: Install published package
+        run: |
+          python -m pip install --upgrade pip
+          pip install nexus-attest
+
+      - name: Verify package import
+        run: |
+          python -c "import nexus_attest; print(f'✓ nexus-attest {nexus_attest.__version__} installed successfully')"
+
+      - name: Verify MCP tools availability
+        run: |
+          python -c "from nexus_attest import NexusControlTools; print('✓ NexusControlTools available')"
+
+      - name: Verify all modules load
+        run: |
+          python << 'EOF'
+          import nexus_attest
+          modules = [
+              'decision', 'events', 'policy', 'store', 'template',
+              'export', 'import_', 'bundle', 'audit_package',
+              'audit_export', 'canonical_json', 'integrity',
+              'lifecycle', 'tool', 'attestation'
+          ]
+          for mod in modules:
+              try:
+                  __import__(f'nexus_attest.{mod}')
+                  print(f'✓ {mod}')
+              except Exception as e:
+                  print(f'✗ {mod}: {e}')
+                  raise
+          print(f'\n✓ All {len(modules)} core modules loaded successfully')
+          EOF
+
+      - name: Test basic functionality
+        run: |
+          python << 'EOF'
+          from nexus_attest.events import Actor
+          from nexus_attest.policy import Policy
+
+          # Test basic imports and instantiation
+          actor = Actor(type="test", id="test-actor")
+          policy = Policy(min_approvals=1, allowed_modes=["dry_run"])
+
+          print(f"✓ Actor: {actor.id}")
+          print(f"✓ Policy: min_approvals={policy.min_approvals}")
+          print(f"\n✓ Basic functionality verified")
+          EOF
+
+  notify-status:
+    name: Publish Status Notification
+    needs: [publish-to-pypi, test-installation]
+    runs-on: ubuntu-latest
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Check publish status
+        run: |
+          if [ "${{ needs.publish-to-pypi.result }}" == "success" ] && [ "${{ needs.test-installation.result }}" == "success" ]; then
+            echo "✅ nexus-attest ${{ github.ref_name }} published successfully to PyPI!"
+            exit 0
+          else
+            echo "❌ Publication workflow encountered issues"
+            exit 1
+          fi

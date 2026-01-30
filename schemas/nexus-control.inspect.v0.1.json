@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.inspect.v0.1.json",
+  "title": "nexus-control.inspect",
+  "description": "Read-only introspection of a decision with human-readable output",
+  "type": "object",
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "description": "The decision ID to inspect"
+    },
+    "render": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to include markdown rendering in response"
+    },
+    "include_events": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to include full event list in response"
+    },
+    "include_compiled_router_request": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to show compiled router request"
+    }
+  },
+  "required": ["decision_id"],
+  "examples": [
+    {
+      "decision_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "decision_id": "550e8400-e29b-41d4-a716-446655440000",
+      "render": true,
+      "include_events": true,
+      "include_compiled_router_request": true
+    }
+  ],
+  "response": {
+    "type": "object",
+    "properties": {
+      "ok": {"type": "boolean"},
+      "decision": {
+        "type": "object",
+        "properties": {
+          "decision_id": {"type": "string"},
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "PENDING_APPROVAL", "APPROVED", "EXECUTING", "EXECUTED", "FAILED"]
+          },
+          "mode": {"type": "string", "enum": ["dry_run", "apply"]},
+          "goal": {"type": ["string", "null"]},
+          "created_at": {"type": ["string", "null"], "format": "date-time"},
+          "last_event_at": {"type": ["string", "null"], "format": "date-time"}
+        }
+      },
+      "approval": {
+        "type": "object",
+        "properties": {
+          "min_approvals": {"type": "integer"},
+          "approved_count": {"type": "integer"},
+          "approvers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "actor": {"type": "string"},
+                "actor_type": {"type": "string"},
+                "expires_at": {"type": ["string", "null"]},
+                "comment": {"type": ["string", "null"]},
+                "ts": {"type": "string"}
+              }
+            }
+          },
+          "missing": {"type": "integer"},
+          "is_approved": {"type": "boolean"}
+        }
+      },
+      "policy": {
+        "type": ["object", "null"],
+        "properties": {
+          "allowed_modes": {"type": "array", "items": {"type": "string"}},
+          "require_capabilities": {"type": "array", "items": {"type": "string"}},
+          "max_steps": {"type": ["integer", "null"]},
+          "labels": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "execution": {
+        "type": "object",
+        "properties": {
+          "requested": {"type": "boolean"},
+          "requested_at": {"type": ["string", "null"]},
+          "started_at": {"type": ["string", "null"]},
+          "completed_at": {"type": ["string", "null"]},
+          "run_id": {"type": ["string", "null"]},
+          "adapter_id": {"type": ["string", "null"]},
+          "dry_run": {"type": ["boolean", "null"]},
+          "steps_executed": {"type": ["integer", "null"]},
+          "router_request_digest": {"type": ["string", "null"]},
+          "router_result_digest": {"type": ["string", "null"]},
+          "outcome": {"type": ["string", "null"], "enum": ["ok", "failed", "in_progress", null]},
+          "last_error": {"type": ["string", "null"]}
+        }
+      },
+      "timeline": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "seq": {"type": "integer"},
+            "type": {"type": "string"},
+            "actor": {"type": "string"},
+            "ts": {"type": "string"}
+          }
+        }
+      },
+      "compiled_router_request": {
+        "type": ["object", "null"],
+        "properties": {
+          "digest": {"type": "string"},
+          "adapter_id": {"type": "string"},
+          "require_capabilities": {"type": ["array", "null"]},
+          "allow_apply": {"type": "boolean"},
+          "max_steps": {"type": ["integer", "null"]}
+        }
+      },
+      "rendered": {
+        "type": "string",
+        "description": "Human-readable markdown rendering (if render=true)"
+      },
+      "events": {
+        "type": "array",
+        "description": "Full event list (if include_events=true)"
+      }
+    }
+  }
+}
