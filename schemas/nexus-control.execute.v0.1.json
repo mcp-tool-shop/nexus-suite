@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.execute.v0.1.json",
+  "title": "nexus-control.execute",
+  "description": "Execute an approved request through nexus-router",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The decision/request ID to execute"
+    },
+    "adapter_id": {
+      "type": "string",
+      "description": "Router adapter ID to use for execution (e.g., 'subprocess:mcpt:...')"
+    },
+    "actor": {
+      "$ref": "#/$defs/actor",
+      "description": "Who is triggering execution"
+    },
+    "dry_run": {
+      "type": ["boolean", "null"],
+      "description": "Override execution mode (must be allowed by policy). If null, uses decision's requested_mode"
+    }
+  },
+  "required": ["request_id", "adapter_id", "actor"],
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["human", "system"],
+          "description": "Type of actor"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the actor"
+        }
+      },
+      "required": ["type", "id"]
+    }
+  },
+  "examples": [
+    {
+      "request_id": "550e8400-e29b-41d4-a716-446655440000",
+      "adapter_id": "subprocess:mcpt:key-rotation",
+      "actor": {"type": "system", "id": "scheduler"},
+      "dry_run": false
+    },
+    {
+      "request_id": "550e8400-e29b-41d4-a716-446655440000",
+      "adapter_id": "subprocess:mcpt:key-rotation",
+      "actor": {"type": "human", "id": "alice@example.com"},
+      "dry_run": true
+    }
+  ]
+}

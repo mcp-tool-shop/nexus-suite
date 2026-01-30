@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.template.list.v0.1.json",
+  "title": "nexus-control.template.list",
+  "description": "List available policy templates",
+  "type": "object",
+  "properties": {
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "default": 100,
+      "description": "Maximum number of templates to return"
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Number of templates to skip"
+    },
+    "label_filter": {
+      "type": ["string", "null"],
+      "description": "Optional label to filter templates by"
+    }
+  },
+  "examples": [
+    {},
+    {
+      "limit": 10,
+      "label_filter": "prod"
+    }
+  ],
+  "response": {
+    "type": "object",
+    "properties": {
+      "templates": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "description": {"type": "string"},
+            "min_approvals": {"type": "integer"},
+            "allowed_modes": {"type": "array", "items": {"type": "string"}},
+            "labels": {"type": "array", "items": {"type": "string"}},
+            "created_at": {"type": ["string", "null"], "format": "date-time"}
+          }
+        }
+      },
+      "count": {"type": "integer"},
+      "offset": {"type": "integer"},
+      "limit": {"type": "integer"}
+    }
+  }
+}

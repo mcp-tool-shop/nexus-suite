@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.request.v0.1.json",
+  "title": "nexus-control.request",
+  "description": "Create an execution request (decision) with goal, plan, and policy",
+  "type": "object",
+  "properties": {
+    "goal": {
+      "type": "string",
+      "description": "What should be accomplished by this execution",
+      "minLength": 1
+    },
+    "actor": {
+      "$ref": "#/$defs/actor",
+      "description": "Who is creating this request"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["dry_run", "apply"],
+      "default": "dry_run",
+      "description": "Requested execution mode"
+    },
+    "plan": {
+      "type": ["string", "null"],
+      "description": "Optional pre-defined execution plan"
+    },
+    "template_name": {
+      "type": ["string", "null"],
+      "description": "Name of template to use for policy defaults. When specified, policy fields become overrides."
+    },
+    "min_approvals": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Minimum number of distinct approvers required"
+    },
+    "allowed_modes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["dry_run", "apply"]
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Which execution modes are allowed by policy"
+    },
+    "require_adapter_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required capabilities for the execution adapter"
+    },
+    "max_steps": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Maximum execution steps (passed to router)"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Governance labels for routing/filtering"
+    }
+  },
+  "required": ["goal", "actor"],
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["human", "system"],
+          "description": "Type of actor"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the actor"
+        }
+      },
+      "required": ["type", "id"]
+    }
+  },
+  "examples": [
+    {
+      "goal": "Rotate API keys for production services",
+      "actor": {"type": "human", "id": "alice@example.com"},
+      "mode": "apply",
+      "min_approvals": 2,
+      "allowed_modes": ["dry_run", "apply"],
+      "labels": ["prod", "security"]
+    }
+  ]
+}
