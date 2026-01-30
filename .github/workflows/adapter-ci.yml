@@ -1,0 +1,115 @@
+# Nexus-Router Adapter CI
+# Auto-generated from template
+
+name: adapter-ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    env:
+      ADAPTER_FACTORY_REF: "nexus_router_adapter_stdout:create_adapter"
+      ADAPTER_CONFIG: "{}"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -e ".[dev]"
+          pip install "nexus-router>=0.12,<2.0"
+
+      - name: Lint (ruff)
+        run: |
+          pip install ruff
+          ruff check . || echo "::warning::Ruff found issues"
+
+      - name: Typecheck (mypy)
+        run: |
+          pip install mypy
+          mypy src/ || echo "::warning::mypy found issues"
+
+      - name: Run tests
+        run: |
+          python -m pytest -v
+
+      - name: Validate adapter (nexus-router gate)
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          import json
+
+          from nexus_router.tool import validate_adapter
+
+          factory_ref = os.environ["ADAPTER_FACTORY_REF"]
+          config_str = os.environ.get("ADAPTER_CONFIG", "{}")
+
+          try:
+              config = json.loads(config_str)
+          except json.JSONDecodeError as e:
+              print(f"::error::Invalid ADAPTER_CONFIG JSON: {e}")
+              sys.exit(1)
+
+          print(f"Validating: {factory_ref}")
+          print(f"Config: {config}")
+          print()
+
+          result = validate_adapter({
+              "factory_ref": factory_ref,
+              "config": config,
+              "strict": True,
+          })
+
+          # Print all checks
+          for check in result["checks"]:
+              status = check["status"].upper()
+              if status == "FAIL":
+                  print(f"::error::{check['id']}: {check['message']}")
+              elif status == "WARN":
+                  print(f"::warning::{check['id']}: {check['message']}")
+              else:
+                  print(f"{status}: {check['id']}")
+
+          print()
+
+          if not result["ok"]:
+              print("::error::Adapter validation FAILED")
+              sys.exit(1)
+
+          # Print summary on success
+          meta = result.get("metadata", {})
+          print(f"Adapter: {meta.get('adapter_id')}")
+          print(f"Kind: {meta.get('adapter_kind')}")
+          print(f"Capabilities: {', '.join(sorted(meta.get('capabilities', [])))}")
+
+          # Print manifest info if present
+          manifest = meta.get("manifest")
+          if manifest:
+              print()
+              print("Manifest:")
+              print(f"  schema_version: {manifest.get('schema_version')}")
+              if "supported_router_versions" in manifest:
+                  print(f"  supported_router_versions: {manifest['supported_router_versions']}")
+              if "config_schema" in manifest:
+                  print(f"  config_schema keys: {list(manifest['config_schema'].keys())}")
+              if "error_codes" in manifest:
+                  print(f"  error_codes: {manifest['error_codes']}")
+
+          print()
+          print("Adapter validation PASSED")
+          PY
