@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.template.get.v0.1.json",
+  "title": "nexus-control.template.get",
+  "description": "Get detailed information about a specific template",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The template name to retrieve"
+    },
+    "include_events": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to include the template event history"
+    }
+  },
+  "required": ["name"],
+  "examples": [
+    {
+      "name": "prod-deploy"
+    },
+    {
+      "name": "prod-deploy",
+      "include_events": true
+    }
+  ],
+  "response": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "min_approvals": {"type": "integer"},
+          "allowed_modes": {"type": "array", "items": {"type": "string"}},
+          "require_adapter_capabilities": {"type": "array", "items": {"type": "string"}},
+          "max_steps": {"type": ["integer", "null"]},
+          "labels": {"type": "array", "items": {"type": "string"}},
+          "created_at": {"type": ["string", "null"], "format": "date-time"},
+          "created_by": {"type": ["object", "null"]}
+        }
+      },
+      "digest": {"type": "string"},
+      "snapshot": {
+        "type": "object",
+        "description": "Minimal snapshot suitable for embedding in decision events"
+      },
+      "events": {
+        "type": "array",
+        "description": "Template events (if include_events=true)"
+      }
+    }
+  }
+}
