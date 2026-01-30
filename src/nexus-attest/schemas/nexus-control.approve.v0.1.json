@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.approve.v0.1.json",
+  "title": "nexus-control.approve",
+  "description": "Approve an execution request",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The decision/request ID to approve"
+    },
+    "actor": {
+      "$ref": "#/$defs/actor",
+      "description": "Who is approving"
+    },
+    "comment": {
+      "type": ["string", "null"],
+      "description": "Optional comment explaining approval rationale"
+    },
+    "expires_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Optional expiration time for this approval (ISO8601)"
+    }
+  },
+  "required": ["request_id", "actor"],
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["human", "system"],
+          "description": "Type of actor"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the actor"
+        }
+      },
+      "required": ["type", "id"]
+    }
+  },
+  "examples": [
+    {
+      "request_id": "550e8400-e29b-41d4-a716-446655440000",
+      "actor": {"type": "human", "id": "alice@example.com"},
+      "comment": "Reviewed plan, looks safe"
+    },
+    {
+      "request_id": "550e8400-e29b-41d4-a716-446655440000",
+      "actor": {"type": "human", "id": "bob@example.com"},
+      "comment": "Second approval for production change",
+      "expires_at": "2024-12-31T23:59:59Z"
+    }
+  ]
+}

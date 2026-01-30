@@ -1,0 +1,171 @@
+{
+  "binding_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "canonicalization": {
+    "attempt_semantics": "cycle:1-indexed",
+    "encoding": "utf-8",
+    "hash_algorithm": "sha256",
+    "serialization": "JCS",
+    "serialization_spec": "RFC 8785",
+    "versions": {
+      "intent": "0.1",
+      "memo": "0.1",
+      "narrative": "0.1",
+      "nexus_control": "0.7.0",
+      "receipt": "0.1"
+    }
+  },
+  "checks": [
+    {
+      "actual": "sha256:b0690d5e422f6b4b03f139c071b522b85d5922732a9c05dbe4dc9bdb9d49b297",
+      "expected": "sha256:b0690d5e422f6b4b03f139c071b522b85d5922732a9c05dbe4dc9bdb9d49b297",
+      "name": "intent_digest_valid",
+      "reason": "Intent digest matches recomputed value",
+      "status": "PASS"
+    },
+    {
+      "name": "receipts_intent_consistent",
+      "reason": "All 2 receipts reference correct intent_digest",
+      "status": "PASS"
+    },
+    {
+      "actual": "sha256:4a85c54532d8a0a6583e746dccdc6dff33b16e8777aefb3f611e20171f253cf5",
+      "expected": "sha256:4a85c54532d8a0a6583e746dccdc6dff33b16e8777aefb3f611e20171f253cf5",
+      "name": "receipt_digest_valid",
+      "reason": "Receipt digest matches computed value",
+      "status": "PASS"
+    },
+    {
+      "name": "witness_exchange_valid",
+      "reason": "Not applicable for SUBMITTED status",
+      "status": "PASS"
+    },
+    {
+      "name": "exchange_exists:xrpl.submit.exchange",
+      "reason": "Exchange record found: sha256:601148e769942fa981d34a5e4047e8025fd33b21a2c7d60fce0039848a7e10ba",
+      "status": "PASS"
+    },
+    {
+      "name": "body_exists:xrpl.submit.exchange:request",
+      "reason": "Body found: sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "status": "PASS"
+    },
+    {
+      "name": "body_exists:xrpl.submit.exchange:response",
+      "reason": "Body found: sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+      "status": "PASS"
+    },
+    {
+      "actual": "sha256:005048ebb55d8424fe422a5582972fab9516417beb059d2120345b34872e7ba7",
+      "expected": "sha256:005048ebb55d8424fe422a5582972fab9516417beb059d2120345b34872e7ba7",
+      "name": "receipt_digest_valid",
+      "reason": "Receipt digest matches computed value",
+      "status": "PASS"
+    },
+    {
+      "name": "witness_exchange_valid",
+      "reason": "Witness exchange evidence stored: sha256:0afbe1cd2ce9ea0a3734622b021f95a286d13ce210e8a9c9a1f30ade831cb87f",
+      "status": "PASS"
+    },
+    {
+      "name": "exchange_exists:xrpl.submit.exchange",
+      "reason": "Exchange record found: sha256:601148e769942fa981d34a5e4047e8025fd33b21a2c7d60fce0039848a7e10ba",
+      "status": "PASS"
+    },
+    {
+      "name": "body_exists:xrpl.submit.exchange:request",
+      "reason": "Body found: sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "status": "PASS"
+    },
+    {
+      "name": "body_exists:xrpl.submit.exchange:response",
+      "reason": "Body found: sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+      "status": "PASS"
+    },
+    {
+      "name": "exchange_exists:xrpl.tx.exchange",
+      "reason": "Exchange record found: sha256:0afbe1cd2ce9ea0a3734622b021f95a286d13ce210e8a9c9a1f30ade831cb87f",
+      "status": "PASS"
+    },
+    {
+      "name": "body_exists:xrpl.tx.exchange:request",
+      "reason": "Body found: sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "status": "PASS"
+    },
+    {
+      "name": "body_exists:xrpl.tx.exchange:response",
+      "reason": "Body found: sha256:0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
+      "status": "PASS"
+    }
+  ],
+  "created_at": "2026-01-29T03:27:54+00:00",
+  "current_status": "CONFIRMED",
+  "env": "testnet",
+  "intent_digest": "sha256:b0690d5e422f6b4b03f139c071b522b85d5922732a9c05dbe4dc9bdb9d49b297",
+  "intent_found": true,
+  "narrative_digest": "sha256:8134cdd2bb5d017b896f6fdc452337a64bffa5d17bf9d3d17747b6a5a6379445",
+  "narrative_version": "0.1",
+  "receipts": [
+    {
+      "attempt": 1,
+      "backend": "xrpl",
+      "created_at": "2025-01-15T12:00:00+00:00",
+      "exchanges": [
+        {
+          "content_digest": "sha256:601148e769942fa981d34a5e4047e8025fd33b21a2c7d60fce0039848a7e10ba",
+          "key": "xrpl.submit.exchange",
+          "record_found": true,
+          "request_body_available": true,
+          "request_digest": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "response_body_available": true,
+          "response_digest": "sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+          "timestamp": "2025-01-15T12:00:00+00:00"
+        }
+      ],
+      "receipt_digest": "sha256:4a85c54532d8a0a6583e746dccdc6dff33b16e8777aefb3f611e20171f253cf5",
+      "status": "SUBMITTED",
+      "tx_hash": "ABC123DEF456789012345678901234567890123456789012345678901234"
+    },
+    {
+      "attempt": 1,
+      "backend": "xrpl",
+      "created_at": "2025-01-15T12:00:05+00:00",
+      "engine_result": "tesSUCCESS",
+      "exchanges": [
+        {
+          "content_digest": "sha256:601148e769942fa981d34a5e4047e8025fd33b21a2c7d60fce0039848a7e10ba",
+          "key": "xrpl.submit.exchange",
+          "record_found": true,
+          "request_body_available": true,
+          "request_digest": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "response_body_available": true,
+          "response_digest": "sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+          "timestamp": "2025-01-15T12:00:00+00:00"
+        },
+        {
+          "content_digest": "sha256:0afbe1cd2ce9ea0a3734622b021f95a286d13ce210e8a9c9a1f30ade831cb87f",
+          "key": "xrpl.tx.exchange",
+          "record_found": true,
+          "request_body_available": true,
+          "request_digest": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+          "response_body_available": true,
+          "response_digest": "sha256:0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
+          "timestamp": "2025-01-15T12:00:05+00:00"
+        }
+      ],
+      "ledger_close_time": "2025-01-15T12:00:05Z",
+      "ledger_index": 12345678,
+      "receipt_digest": "sha256:005048ebb55d8424fe422a5582972fab9516417beb059d2120345b34872e7ba7",
+      "status": "CONFIRMED",
+      "tx_hash": "ABC123DEF456789012345678901234567890123456789012345678901234"
+    }
+  ],
+  "schema": "nexus.attestation.narrative.v0.1",
+  "subject_type": "nexus.audit.package",
+  "total_attempts": 1,
+  "witness": {
+    "engine_result": "tesSUCCESS",
+    "ledger_close_time": "2025-01-15T12:00:05Z",
+    "ledger_index": 12345678,
+    "tx_hash": "ABC123DEF456789012345678901234567890123456789012345678901234"
+  }
+}

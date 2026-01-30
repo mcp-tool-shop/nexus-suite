@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop/nexus-control/schemas/nexus-control.template.create.v0.1.json",
+  "title": "nexus-control.template.create",
+  "description": "Create a reusable policy template",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+      "description": "Unique template name (e.g., 'prod-deploy', 'security-rotation')"
+    },
+    "actor": {
+      "$ref": "#/$defs/actor",
+      "description": "Who is creating this template"
+    },
+    "description": {
+      "type": "string",
+      "default": "",
+      "description": "Human-readable description of the template's purpose"
+    },
+    "min_approvals": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Minimum number of distinct approvers required"
+    },
+    "allowed_modes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["dry_run", "apply"]
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "default": ["dry_run"],
+      "description": "Which execution modes are allowed by this template"
+    },
+    "require_adapter_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required capabilities for the execution adapter"
+    },
+    "max_steps": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Maximum execution steps (passed to router)"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Governance labels for routing/filtering"
+    }
+  },
+  "required": ["name", "actor"],
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["human", "system"],
+          "description": "Type of actor"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the actor"
+        }
+      },
+      "required": ["type", "id"]
+    }
+  },
+  "examples": [
+    {
+      "name": "prod-deploy",
+      "actor": {"type": "human", "id": "alice@example.com"},
+      "description": "Standard production deployment with 2 approvers",
+      "min_approvals": 2,
+      "allowed_modes": ["dry_run", "apply"],
+      "require_adapter_capabilities": ["timeout", "external"],
+      "max_steps": 50,
+      "labels": ["prod"]
+    }
+  ],
+  "response": {
+    "type": "object",
+    "properties": {
+      "template_name": {"type": "string"},
+      "description": {"type": "string"},
+      "digest": {"type": "string"},
+      "created_at": {"type": "string", "format": "date-time"}
+    }
+  }
+}
